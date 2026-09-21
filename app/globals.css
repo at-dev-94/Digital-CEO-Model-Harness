@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #071018;
+  --bg-2: #0c1824;
+  --panel: rgba(14, 28, 42, 0.78);
+  --line: rgba(212, 175, 87, 0.18);
+  --gold: #e2c275;
+  --gold-2: #b8892d;
+  --teal: #3ee0c6;
+  --rose: #ff7a90;
+  --text: #f3efe4;
+  --muted: #9aa7b5;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-gold: var(--gold);
+  --color-teal: var(--teal);
+  --color-rose: var(--rose);
+  --font-sans: var(--font-geist-sans), var(--font-bengali), ui-sans-serif, system-ui;
+  --font-mono: var(--font-geist-mono), ui-monospace;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  background-image:
+    radial-gradient(1200px 500px at 10% -10%, rgba(226, 194, 117, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(62, 224, 198, 0.08), transparent 50%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+  font-family: var(--font-sans);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3d50 transparent;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+
+.gold-line {
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  height: 1px;
+}
+
+.grid-noise {
+  background-image:
+    linear-gradient(rgba(226, 194, 117, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 194, 117, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
