@@ -732,22 +732,21 @@ function SecurityCard() {
 }
 
 function AssistantCard() {
-  const { t } = useApp();
+  const { t, settings } = useApp();
   const actions: Array<{ key: Parameters<typeof t>[0]; prompt: string }> = [
     { key: "quickCheckPrices", prompt: "Check the latest eSIM prices from Airalo, Saily and Nomad and tell me where we should undercut." },
     { key: "quickCreateCampaign", prompt: "Create a social media campaign for this week across Instagram, Facebook and TikTok." },
     { key: "quickUpdatePricing", prompt: "Recommend website pricing updates based on the latest competitor scan." },
     { key: "quickShowReports", prompt: "Show me the latest reports and summarise what changed." },
   ];
+  const face = settings.avatarMode === "logo" ? "/brand/logo-247.jpg" : "/brand/ceo.jpg";
 
   return (
     <div className="panel rounded-2xl p-5">
       <div className="flex items-center gap-2.5">
-        <span className="stat-icon bg-[var(--gold-soft)] text-[var(--gold)]">
-          <Bot size={17} />
-        </span>
+        <img src={face} alt="" className="h-11 w-11 rounded-2xl object-cover ring-1 ring-[var(--line)]" />
         <div>
-          <div className="text-sm font-semibold">{t("appName")}</div>
+          <div className="text-sm font-semibold">{t("brandName")}</div>
           <div className="text-[12px] text-[var(--muted)]">{t("assistantPrompt")}</div>
         </div>
       </div>

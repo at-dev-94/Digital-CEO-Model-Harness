@@ -38,6 +38,11 @@ export default function LoginForm() {
     <div className="grid-noise relative min-h-screen overflow-hidden">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-6 py-12 lg:grid-cols-2">
         <div>
+          <img
+            src="/brand/logo-247.jpg"
+            alt="247 Digital Services"
+            className="mb-6 h-16 w-auto rounded-2xl object-cover ring-1 ring-[var(--line)]"
+          />
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs tracking-[0.18em] text-[var(--gold)] uppercase">
             AI CEO Assistant
           </div>

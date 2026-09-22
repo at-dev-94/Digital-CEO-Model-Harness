@@ -8,7 +8,6 @@ import {
   Ear,
   FileText,
   Inbox,
-  Infinity as InfinityIcon,
   LayoutDashboard,
   LineChart,
   LogOut,
@@ -100,13 +99,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[256px_1fr]">
       <aside className="hidden bg-[var(--side-bg)] p-4 lg:flex lg:flex-col">
-        <div className="mb-7 flex items-center gap-3 px-2 pt-2">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#3b82f6] to-[#22d3ee] text-white shadow-[0_8px_20px_rgba(37,99,235,0.35)]">
-            <InfinityIcon size={18} />
+        <div className="mb-6 px-1">
+          <div className="overflow-hidden rounded-2xl bg-[#071018] ring-1 ring-white/10">
+            <img
+              src="/brand/logo-247.jpg"
+              alt="247 Digital Services"
+              className="h-[88px] w-full object-contain object-center"
+            />
           </div>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-white">{t("appName")}</div>
-            <div className="truncate text-[11px] text-[var(--side-muted)]">{t("subtitle")}</div>
+          <div className="mt-3 px-1">
+            <div className="truncate text-sm font-semibold text-white">{t("brandName")}</div>
+            <div className="truncate text-[11px] text-[var(--side-muted)]">{t("assistantTitle")}</div>
           </div>
         </div>
 
@@ -146,9 +149,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-5 flex items-center gap-3 rounded-2xl bg-[var(--side-bg-2)] p-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--gold)] text-xs font-semibold text-white">
-            {(user?.name || "E").slice(0, 1).toUpperCase()}
-          </div>
+          <img
+            src={settings.avatarMode === "logo" ? "/brand/logo-247.jpg" : "/brand/ceo.jpg"}
+            alt={user?.name || t("owner")}
+            className="h-9 w-9 shrink-0 rounded-full object-cover"
+          />
           <div className="min-w-0 flex-1">
             <div className="truncate text-xs font-medium text-white">{user?.name || t("owner")}</div>
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--side-muted)]">
@@ -170,9 +175,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-[var(--line)] bg-white/85 px-4 py-3 backdrop-blur-xl md:px-6">
           <div className="flex items-center gap-2 lg:hidden">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#22d3ee] text-white">
-              <InfinityIcon size={15} />
-            </div>
+            <img src="/brand/logo-247.jpg" alt="247" className="h-8 w-8 rounded-lg object-cover" />
           </div>
 
           <div className="hidden items-center gap-2 text-sm lg:flex">

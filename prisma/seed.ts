@@ -55,7 +55,7 @@ async function main() {
     data: [
       { key: "executionMode", value: "manual" },
       { key: "autoMode", value: "false" },
-      { key: "companyName", value: process.env.COMPANY_NAME || "Eshmum eSIM" },
+      { key: "companyName", value: process.env.COMPANY_NAME || "247eSIM" },
       { key: "language", value: "en" },
       { key: "postsPerDay", value: "4" },
       { key: "approvalRequired", value: "true" },
@@ -63,6 +63,18 @@ async function main() {
       { key: "readAloud", value: "true" },
       { key: "wakeWord", value: "false" },
       { key: "voiceRate", value: "1" },
+      { key: "voicePreset", value: "en-GB-male" },
+      { key: "avatarMode", value: "photo" },
+      {
+        key: "scrapeTargets",
+        value: JSON.stringify([
+          { name: "Airalo", url: "https://www.airalo.com/united-states-esim", country: "United States", countryCode: "US" },
+          { name: "Airalo Turkey", url: "https://www.airalo.com/turkey-esim", country: "Turkey", countryCode: "TR" },
+          { name: "Saily", url: "https://saily.com", country: "United States", countryCode: "US" },
+          { name: "Nomad", url: "https://www.nomadesim.com", country: "United States", countryCode: "US" },
+          { name: "Holafly", url: "https://esim.holafly.com", country: "Europe", countryCode: "EU" },
+        ]),
+      },
     ],
   });
 
@@ -88,6 +100,13 @@ async function main() {
     ["Airalo", "Bangladesh", "BD", "3GB / 30 days", 3, 30, 8.5, "https://www.airalo.com"],
     ["Saily", "Bangladesh", "BD", "3GB / 30 days", 3, 30, 8.99, "https://saily.com"],
     ["Nomad", "Bangladesh", "BD", "3GB / 30 days", 3, 30, 9.5, "https://www.nomadesim.com"],
+    ["247eSIM", "United States", "US", "10GB / 30 days", 10, 30, 18.4, "https://247esim.com"],
+    ["247eSIM", "United Kingdom", "GB", "3GB / 30 days", 3, 30, 8.27, "https://247esim.com"],
+    ["247eSIM", "Turkey", "TR", "10GB / 30 days", 10, 30, 13.8, "https://247esim.com"],
+    ["247eSIM", "Japan", "JP", "10GB / 30 days", 10, 30, 16.5, "https://247esim.com"],
+    ["247eSIM", "Europe", "EU", "10GB / 30 days", 10, 30, 21.16, "https://247esim.com"],
+    ["247eSIM", "United Arab Emirates", "AE", "5GB / 30 days", 5, 30, 16.5, "https://247esim.com"],
+    ["247eSIM", "Bangladesh", "BD", "3GB / 30 days", 3, 30, 7.82, "https://247esim.com"],
   ] as const;
 
   await prisma.competitorPrice.createMany({
@@ -100,7 +119,7 @@ async function main() {
       days: p[5],
       priceUsd: p[6],
       url: p[7],
-      source: "catalog",
+      source: p[0] === "247eSIM" ? "own-catalog" : "catalog",
     })),
   });
 

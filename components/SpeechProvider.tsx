@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import type { Lang } from "@/lib/i18n";
+import { getVoicePreset, matchBrowserVoice } from "@/lib/voices";
 import { useApp } from "./Providers";
 
 type ReaderEntry = { id: string; label: string; getText: () => string };
@@ -18,7 +19,7 @@ type SpeechState = {
   supported: boolean;
   speaking: boolean;
   paused: boolean;
-  speak: (text: string, lang?: Lang) => void;
+  speak: (text: string, lang?: Lang, presetId?: string) => void;
   pause: () => void;
   resume: () => void;
   stop: () => void;
@@ -76,6 +77,7 @@ export function SpeechProvider({ children }: { children: React.ReactNode }) {
   const { lang, settings } = useApp();
   const assistantName = settings.assistantName || "Nova";
   const voiceRate = Number(settings.voiceRate || "1") || 1;
+  const voicePreset = settings.voicePreset || "en-GB-male";
 
   const [supported, setSupported] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -106,14 +108,11 @@ export function SpeechProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const pickVoice = useCallback(
-    (target: Lang) => {
-      const prefix = target === "bn" ? "bn" : "en";
-      const exact = voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
-      if (exact) return exact;
-      // Bengali voices are rare on desktop; fall back to any English voice.
-      return voices.find((v) => v.lang.toLowerCase().startsWith("en")) || null;
+    (target: Lang, presetId?: string) => {
+      const preset = getVoicePreset(presetId || voicePreset);
+      return matchBrowserVoice(voices, preset, target);
     },
-    [voices],
+    [voices, voicePreset],
   );
 
   const stop = useCallback(() => {
@@ -125,18 +124,19 @@ export function SpeechProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const speak = useCallback(
-    (text: string, target?: Lang) => {
+    (text: string, target?: Lang, presetId?: string) => {
       if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
       const body = toSpeakable(text);
       if (!body) return;
       const useLang = target || lang;
+      const preset = getVoicePreset(presetId || voicePreset);
 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(body);
-      utterance.lang = useLang === "bn" ? "bn-BD" : "en-US";
+      utterance.lang = useLang === "bn" ? "bn-BD" : preset.locale;
       utterance.rate = Math.min(2, Math.max(0.5, voiceRate));
-      utterance.pitch = 1;
-      const voice = pickVoice(useLang);
+      utterance.pitch = preset.pitch;
+      const voice = pickVoice(useLang, presetId);
       if (voice) utterance.voice = voice;
 
       utterance.onstart = () => {
@@ -154,7 +154,7 @@ export function SpeechProvider({ children }: { children: React.ReactNode }) {
 
       window.speechSynthesis.speak(utterance);
     },
-    [lang, pickVoice, voiceRate],
+    [lang, pickVoice, voiceRate, voicePreset],
   );
 
   const pause = useCallback(() => {

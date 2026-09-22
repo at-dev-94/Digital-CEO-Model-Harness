@@ -17,7 +17,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireSession();
-    const body = (await req.json().catch(() => ({}))) as { name?: string; url?: string };
+    const body = (await req.json().catch(() => ({}))) as { name?: string; url?: string; id?: string; action?: string };
+
+    if (body.action === "delete" && body.id) {
+      await prisma.website.delete({ where: { id: body.id } }).catch(() => null);
+      const websites = await prisma.website.findMany({ orderBy: { createdAt: "asc" } });
+      return NextResponse.json({ websites });
+    }
 
     if (body.url) {
       const site = await prisma.website.upsert({

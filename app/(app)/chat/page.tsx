@@ -127,16 +127,24 @@ export default function ChatPage() {
 
       <div className="panel flex-1 space-y-3 overflow-y-auto rounded-2xl p-5">
         {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${
-              m.role === "user" ? "ml-auto bg-[var(--gold)] text-white" : "soft"
-            }`}
-          >
+          <div key={m.id} className={`flex gap-2 ${m.role === "user" ? "justify-end" : ""}`}>
+            {m.role === "assistant" ? (
+              <img
+                src={settings.avatarMode === "logo" ? "/brand/logo-247.jpg" : "/brand/ceo.jpg"}
+                alt=""
+                className="mt-1 h-8 w-8 shrink-0 rounded-full object-cover"
+              />
+            ) : null}
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 ${
+                m.role === "user" ? "bg-[var(--gold)] text-white" : "soft"
+              }`}
+            >
             <div className="whitespace-pre-wrap">{m.content}</div>
             <div className="mt-1 flex items-center gap-2">
               {m.model ? <span className="text-[10px] text-[var(--faint)]">{m.model}</span> : null}
               {m.role === "assistant" ? <SpeakButton text={m.content} variant="icon" /> : null}
+            </div>
             </div>
           </div>
         ))}
