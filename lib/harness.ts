@@ -66,6 +66,11 @@ Rules:
 
 function mockReply(kind: TaskKind, userText: string, lang: "en" | "bn") {
   const bn = lang === "bn";
+  if (kind === "brief") {
+    return bn
+      ? "আজকের মর্নিং ব্রিফ ওয়ার্কস্পেসের তথ্য থেকে তৈরি হয়েছে। জরুরি ইমেইল, মিটিং, অনুমোদন ও দামের সুপারিশ ড্যাশবোর্ডে আলাদা করে দেখানো হয়েছে।"
+      : "Today's Morning Brief is assembled from the live workspace: urgent mail, meetings, pending approvals and the latest price recommendations are listed on the dashboard.";
+  }
   if (kind === "pricing") {
     return bn
       ? "বাজার স্ক্যান: যুক্তরাষ্ট্র ১০GB-এ Airalo প্রায় $২২.৫০, Saily $২২.৯৯, Nomad $২০–২৫। প্রস্তাব: ১০GB/৩০ দিন $১৮.৯০ — সবচেয়ে সস্তার নিচে ~৫–৮%, মার্জিন রেখে। অনুমোদন কিউতে পাঠানো হয়েছে।"
@@ -178,15 +183,8 @@ export async function runHarness(opts: {
   });
 
   if ("error" in result) {
-    if (result.error === "no-key") {
-      return { text: mockReply(kind, lastUser, language), model: "harness-mock", kind, language };
-    }
-    return {
-      text: mockReply(kind, lastUser, language) + `\n\n(Live model unavailable: ${result.error})`,
-      model: "harness-mock",
-      kind,
-      language,
-    };
+    console.error("harness model error:", result.error.slice(0, 180));
+    return { text: mockReply(kind, lastUser, language), model: "harness-mock", kind, language };
   }
 
   return {

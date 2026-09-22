@@ -7,6 +7,10 @@ const DEFAULTS: Record<string, string> = {
   language: "en",
   postsPerDay: "4",
   approvalRequired: "true",
+  assistantName: process.env.ASSISTANT_NAME || "Nova",
+  readAloud: "true",
+  wakeWord: "false",
+  voiceRate: "1",
 };
 
 export async function getSetting(key: string) {

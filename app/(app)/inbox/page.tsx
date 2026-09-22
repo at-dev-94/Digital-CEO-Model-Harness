@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/Providers";
+import { SpeakButton } from "@/components/SpeakButton";
 
 type Mail = {
   id: string;
@@ -45,12 +46,14 @@ export default function InboxPage() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-      <aside className="panel rounded-3xl p-3">
+      <aside className="panel rounded-2xl p-3">
         {items.map((m) => (
           <button
             key={m.id}
             onClick={() => setActive(m)}
-            className={`mb-1 w-full rounded-2xl px-3 py-3 text-left ${active?.id === m.id ? "bg-white/10" : ""}`}
+            className={`mb-1 w-full rounded-xl px-3 py-3 text-left transition ${
+              active?.id === m.id ? "soft-active" : "hover:bg-[#f6f8fc]"
+            }`}
           >
             <div className="flex justify-between text-xs text-[var(--muted)]">
               <span>{m.fromName}</span>
@@ -61,21 +64,24 @@ export default function InboxPage() {
         ))}
       </aside>
       {active ? (
-        <article className="panel rounded-3xl p-6">
-          <div className="text-xs text-[var(--gold)] uppercase tracking-widest">{t("inbox")}</div>
-          <h1 className="mt-2 text-2xl">{active.subject}</h1>
+        <article className="panel rounded-2xl p-6">
+          <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gold)]">{t("inbox")}</div>
+          <h1 className="mt-2 text-xl font-semibold">{active.subject}</h1>
           <p className="text-sm text-[var(--muted)]">
             {active.fromName} · {active.fromEmail}
           </p>
           <p className="mt-4 whitespace-pre-wrap leading-7">{active.body}</p>
           <div className="gold-line my-6" />
-          <div className="text-xs uppercase tracking-widest text-[var(--teal)]">{t("draftReply")}</div>
+          <div className="flex items-center gap-2">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--teal)]">{t("draftReply")}</div>
+            <SpeakButton text={active.draftReply || ""} variant="icon" />
+          </div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-7">{active.draftReply || t("noItems")}</p>
           <div className="mt-4 flex gap-2">
-            <button onClick={() => act("draft")} className="rounded-full border border-[var(--line)] px-4 py-2 text-sm">
+            <button onClick={() => act("draft")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
               {t("draftReply")}
             </button>
-            <button onClick={() => act("queue")} className="rounded-full bg-[var(--gold)] px-4 py-2 text-sm text-[#071018]">
+            <button onClick={() => act("queue")} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
               {t("oneClick")}
             </button>
           </div>

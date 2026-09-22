@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useApp } from "@/components/Providers";
+import { SpeakButton } from "@/components/SpeakButton";
 
 type Post = {
   id: string;
@@ -52,22 +53,24 @@ export default function SocialPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-xs tracking-[0.2em] text-[var(--gold)] uppercase">{t("social")}</div>
-          <h1 className="text-2xl font-semibold">Facebook · Instagram · TikTok</h1>
+          <div className="text-xs font-semibold tracking-[0.16em] text-[var(--gold)] uppercase">{t("social")}</div>
+          <h1 className="text-xl font-semibold">Facebook · Instagram · TikTok</h1>
         </div>
-        <button onClick={generate} className="rounded-full bg-[var(--gold)] px-4 py-2 text-sm text-[#071018]">
+        <button onClick={generate} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
           {busy ? "…" : t("generatePosts")}
         </button>
       </div>
       {performance.length ? (
-        <div className="panel h-64 rounded-3xl p-4">
+        <div className="panel h-64 rounded-2xl p-4">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={performance}>
-              <XAxis dataKey="name" stroke="#9aa7b5" />
-              <YAxis stroke="#9aa7b5" />
-              <Tooltip contentStyle={{ background: "#0c1824", border: "1px solid #b8892d" }} />
-              <Line type="monotone" dataKey="impressions" stroke="#e2c275" />
-              <Line type="monotone" dataKey="likes" stroke="#3ee0c6" />
+              <CartesianGrid stroke="#eef2f8" vertical={false} />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f3", fontSize: 12 }} />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+              <Line type="monotone" dataKey="impressions" stroke="#2563eb" strokeWidth={2.4} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="likes" stroke="#0d9488" strokeWidth={2.4} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -75,9 +78,12 @@ export default function SocialPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {posts.map((p) => (
           <article key={p.id} className="panel rounded-2xl p-5">
-            <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[var(--muted)]">
+            <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
               <span>{p.platform}</span>
-              <span>{p.status}</span>
+              <span className="flex items-center gap-1">
+                {p.status}
+                <SpeakButton text={`${p.caption} ${p.hashtags}`} variant="icon" />
+              </span>
             </div>
             <p className="mt-3 text-sm leading-6">{p.caption}</p>
             {p.captionBn ? <p className="mt-2 text-sm text-[var(--teal)]">{p.captionBn}</p> : null}

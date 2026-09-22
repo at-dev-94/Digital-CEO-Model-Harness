@@ -17,7 +17,18 @@ export async function PATCH(req: NextRequest) {
   try {
     const user = await requireSession();
     const body = (await req.json()) as Record<string, string>;
-    const allowed = ["executionMode", "autoMode", "companyName", "language", "postsPerDay", "approvalRequired"];
+    const allowed = [
+      "executionMode",
+      "autoMode",
+      "companyName",
+      "language",
+      "postsPerDay",
+      "approvalRequired",
+      "assistantName",
+      "readAloud",
+      "wakeWord",
+      "voiceRate",
+    ];
     for (const key of allowed) {
       if (body[key] !== undefined) await setSetting(key, String(body[key]));
     }

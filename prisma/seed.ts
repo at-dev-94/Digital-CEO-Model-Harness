@@ -9,6 +9,17 @@ function at(hours: number, minutes = 0) {
   return d;
 }
 
+function dayStart(offsetDays: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - offsetDays);
+  d.setUTCHours(0, 0, 0, 0);
+  return d;
+}
+
+function minutesAgo(minutes: number) {
+  return new Date(Date.now() - minutes * 60 * 1000);
+}
+
 async function main() {
   await prisma.message.deleteMany();
   await prisma.conversation.deleteMany();
@@ -23,6 +34,9 @@ async function main() {
   await prisma.businessDoc.deleteMany();
   await prisma.memory.deleteMany();
   await prisma.jobRun.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.website.deleteMany();
+  await prisma.metricDaily.deleteMany();
   await prisma.setting.deleteMany();
   await prisma.user.deleteMany();
 
@@ -45,6 +59,10 @@ async function main() {
       { key: "language", value: "en" },
       { key: "postsPerDay", value: "4" },
       { key: "approvalRequired", value: "true" },
+      { key: "assistantName", value: process.env.ASSISTANT_NAME || "Nova" },
+      { key: "readAloud", value: "true" },
+      { key: "wakeWord", value: "false" },
+      { key: "voiceRate", value: "1" },
     ],
   });
 
@@ -383,16 +401,100 @@ Social
     ],
   });
 
-  await prisma.auditLog.create({
-    data: {
-      userId: user.id,
-      action: "seed",
-      entity: "System",
-      detail: "Initial Digital CEO workspace seeded",
-    },
+  await prisma.website.createMany({
+    data: [
+      { name: "247eSIM.com", url: "https://247esim.com", status: "online", statusCode: 200, responseMs: 214, lastCheckedAt: minutesAgo(8) },
+      { name: "247travellers.com", url: "https://247travellers.com", status: "online", statusCode: 200, responseMs: 268, lastCheckedAt: minutesAgo(8) },
+      { name: "247flightsearch.com", url: "https://247flightsearch.com", status: "online", statusCode: 200, responseMs: 301, lastCheckedAt: minutesAgo(8) },
+    ],
   });
 
-  console.log("Seeded Digital CEO as", user.email);
+  // Index 0 is 13 days ago, index 13 is today, so the dashboard can compare
+  // the last 7 days against the 7 before it.
+  const visits = [1400, 1420, 1450, 1440, 1460, 1470, 1480, 1620, 1710, 1780, 1840, 1860, 1880, 1858];
+  const reach = [5200, 5250, 5280, 5300, 5260, 5280, 5348, 6200, 6500, 6800, 7100, 7300, 7400, 7432];
+  const mailsHandled = [148, 150, 152, 151, 153, 150, 152, 165, 172, 178, 180, 184, 182, 185];
+  const revenue = [1180, 1220, 1140, 1330, 1290, 1400, 1340, 1320, 1480, 1560, 1620, 1780, 1710, 1730];
+
+  await prisma.metricDaily.createMany({
+    data: visits.flatMap((_, i) => {
+      const date = dayStart(13 - i);
+      return [
+        { key: "website_visits", date, value: visits[i], source: "analytics" },
+        { key: "social_reach", date, value: reach[i], source: "social" },
+        { key: "emails_processed", date, value: mailsHandled[i], source: "mailbox" },
+      ];
+    }),
+  });
+
+  const catalogue = [
+    { planName: "USA 10GB / 30 days", country: "United States", dataGb: 10, days: 30, amountUsd: 18.4 },
+    { planName: "Turkey 10GB / 30 days", country: "Turkey", dataGb: 10, days: 30, amountUsd: 13.8 },
+    { planName: "Europe 10GB / 30 days", country: "Europe", dataGb: 10, days: 30, amountUsd: 21.16 },
+    { planName: "UK 3GB / 30 days", country: "United Kingdom", dataGb: 3, days: 30, amountUsd: 8.27 },
+    { planName: "UAE 5GB / 30 days", country: "United Arab Emirates", dataGb: 5, days: 30, amountUsd: 16.5 },
+  ];
+  const channels = ["web", "whatsapp", "instagram", "kiosk"];
+
+  let orderSeq = 0;
+  const orders: Array<{
+    externalId: string;
+    planName: string;
+    country: string;
+    dataGb: number;
+    days: number;
+    amountUsd: number;
+    channel: string;
+    customer: string;
+    placedAt: Date;
+  }> = [];
+
+  revenue.forEach((target, i) => {
+    const day = dayStart(13 - i);
+    let remaining = target;
+    while (remaining > 0) {
+      const plan = catalogue[orderSeq % catalogue.length];
+      const amountUsd = remaining >= plan.amountUsd ? plan.amountUsd : Math.round(remaining * 100) / 100;
+      const placedAt = new Date(day);
+      placedAt.setUTCHours(6 + (orderSeq % 15), (orderSeq * 7) % 60, 0, 0);
+      orders.push({
+        externalId: `SEED-${String(1000 + orderSeq)}`,
+        planName: plan.planName,
+        country: plan.country,
+        dataGb: plan.dataGb,
+        days: plan.days,
+        amountUsd,
+        channel: channels[orderSeq % channels.length],
+        customer: `traveller${1000 + orderSeq}@example.com`,
+        placedAt,
+      });
+      remaining = Math.round((remaining - amountUsd) * 100) / 100;
+      orderSeq += 1;
+    }
+  });
+
+  await prisma.order.createMany({ data: orders });
+
+  await prisma.jobRun.createMany({
+    data: [
+      { name: "competitor_scan", status: "success", message: "21 prices from Airalo, Saily, Nomad", startedAt: minutesAgo(3), finishedAt: minutesAgo(2) },
+      { name: "social_drafts", status: "success", message: "3 drafts queued for approval", startedAt: minutesAgo(6), finishedAt: minutesAgo(5) },
+      { name: "website_check", status: "success", message: "3 of 3 sites online", startedAt: minutesAgo(9), finishedAt: minutesAgo(8) },
+      { name: "morning_brief", status: "success", message: "Brief generated in EN", startedAt: minutesAgo(180), finishedAt: minutesAgo(179) },
+    ],
+  });
+
+  await prisma.auditLog.createMany({
+    data: [
+      { userId: user.id, action: "price_analysis_completed", entity: "PriceRecommendation", detail: "3 countries analysed, 2 undercuts queued", createdAt: minutesAgo(2) },
+      { userId: user.id, action: "social_posts_generated", entity: "SocialPost", detail: "3 drafts created for Instagram, Facebook, TikTok", createdAt: minutesAgo(5) },
+      { userId: user.id, action: "website_status_check", entity: "Website", detail: "247eSIM.com, 247travellers.com, 247flightsearch.com all online", createdAt: minutesAgo(8) },
+      { userId: user.id, action: "order_ingested", entity: "Order", detail: "Turkey 10GB / 30 days via WhatsApp", createdAt: minutesAgo(26) },
+      { userId: user.id, action: "seed", entity: "System", detail: "Initial Digital CEO workspace seeded", createdAt: minutesAgo(45) },
+    ],
+  });
+
+  console.log(`Seeded Digital CEO as ${user.email} with ${orders.length} orders`);
 }
 
 main()

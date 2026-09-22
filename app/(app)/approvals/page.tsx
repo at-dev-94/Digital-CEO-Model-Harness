@@ -42,13 +42,13 @@ export default function ApprovalsPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-xs tracking-[0.2em] text-[var(--gold)] uppercase">{t("approvals")}</div>
-          <h1 className="text-2xl font-semibold">{t("oneClick")}</h1>
+          <div className="text-xs font-semibold tracking-[0.16em] text-[var(--gold)] uppercase">{t("approvals")}</div>
+          <h1 className="text-xl font-semibold">{t("oneClick")}</h1>
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="rounded-xl border border-[var(--line)] bg-black/30 px-3 py-2 text-sm"
+          className="field rounded-xl px-3 py-2 text-sm"
         >
           <option value="pending">{t("pending")}</option>
           <option value="executed">{t("executed")}</option>
@@ -69,10 +69,13 @@ export default function ApprovalsPage() {
             <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--muted)]">{item.summary}</p>
             {item.status === "pending" ? (
               <div className="mt-4 flex gap-2">
-                <button onClick={() => decide(item.id, "approved")} className="rounded-full bg-[var(--teal)] px-4 py-2 text-sm text-[#071018]">
+                <button
+                  onClick={() => decide(item.id, "approved")}
+                  className="rounded-full bg-[var(--teal)] px-4 py-2 text-sm font-medium text-white"
+                >
                   {t("approve")}
                 </button>
-                <button onClick={() => decide(item.id, "rejected")} className="rounded-full border border-[var(--line)] px-4 py-2 text-sm">
+                <button onClick={() => decide(item.id, "rejected")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
                   {t("reject")}
                 </button>
               </div>

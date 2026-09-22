@@ -15,9 +15,9 @@ export default function AuditPage() {
     })();
   }, []);
   return (
-    <div className="panel overflow-x-auto rounded-3xl">
+    <div className="panel overflow-x-auto rounded-2xl">
       <table className="min-w-full text-sm">
-        <thead className="text-left text-[var(--muted)]">
+        <thead className="soft text-left text-[var(--muted)]">
           <tr>
             <th className="p-3">When</th>
             <th className="p-3">Action</th>

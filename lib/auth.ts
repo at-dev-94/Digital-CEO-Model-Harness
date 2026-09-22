@@ -57,7 +57,9 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!token) return null;
   const session = await readSessionToken(token);
   if (!session) return null;
-  const user = await prisma.user.findUnique({ where: { id: session.id } });
+  const user =
+    (await prisma.user.findUnique({ where: { id: session.id } })) ||
+    (session.email ? await prisma.user.findUnique({ where: { email: session.email } }) : null);
   if (!user) return null;
   return {
     id: user.id,
@@ -76,4 +78,17 @@ export async function requireSession() {
     throw err;
   }
   return session;
+}
+
+export function isAuthError(err: unknown) {
+  return Boolean(err && typeof err === "object" && "status" in err && (err as { status: number }).status === 401);
+}
+
+export function errorResponse(err: unknown) {
+  if (isAuthError(err)) {
+    return { body: { error: "Unauthorized" }, status: 401 as const };
+  }
+  const message = err instanceof Error ? err.message : "Server error";
+  console.error("[api]", message);
+  return { body: { error: message }, status: 500 as const };
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireSession } from "@/lib/auth";
+import { errorResponse, requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { runHarness, detectLanguage, detectTask } from "@/lib/harness";
 import { rateLimit } from "@/lib/rate-limit";
@@ -16,8 +16,9 @@ export async function GET() {
       take: 8,
     });
     return NextResponse.json({ conversations });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (err) {
+    const { body, status } = errorResponse(err);
+    return NextResponse.json(body, { status });
   }
 }
 
@@ -110,7 +111,8 @@ export async function POST(req: NextRequest) {
       model: result.model,
       kind: result.kind,
     });
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (err) {
+    const { body, status } = errorResponse(err);
+    return NextResponse.json(body, { status });
   }
 }

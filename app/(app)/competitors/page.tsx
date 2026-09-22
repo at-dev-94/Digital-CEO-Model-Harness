@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useApp } from "@/components/Providers";
 
 type Price = {
@@ -61,31 +61,36 @@ export default function CompetitorsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-xs tracking-[0.2em] text-[var(--gold)] uppercase">{t("competitors")}</div>
-          <h1 className="text-2xl font-semibold">Airalo · Saily · Nomad</h1>
+          <div className="text-xs font-semibold tracking-[0.16em] text-[var(--gold)] uppercase">{t("competitors")}</div>
+          <h1 className="text-xl font-semibold">Airalo · Saily · Nomad</h1>
         </div>
-        <button onClick={refresh} className="rounded-full bg-[var(--gold)] px-4 py-2 text-sm text-[#071018]">
+        <button onClick={refresh} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
           {busy ? "…" : t("refreshMarket")}
         </button>
       </div>
-      <div className="panel h-80 rounded-3xl p-4">
+      <div className="panel h-80 rounded-2xl p-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chart}>
-            <XAxis dataKey="country" stroke="#9aa7b5" fontSize={11} />
-            <YAxis stroke="#9aa7b5" fontSize={11} />
-            <Tooltip contentStyle={{ background: "#0c1824", border: "1px solid #b8892d" }} />
-            <Bar dataKey="Airalo" fill="#e2c275" />
-            <Bar dataKey="Saily" fill="#3ee0c6" />
-            <Bar dataKey="Nomad" fill="#7aa2ff" />
+            <CartesianGrid stroke="#eef2f8" vertical={false} />
+            <XAxis dataKey="country" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <Tooltip
+              contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f3", fontSize: 12 }}
+              cursor={{ fill: "rgba(37,99,235,0.05)" }}
+            />
+            <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+            <Bar dataKey="Airalo" fill="#2563eb" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Saily" fill="#0d9488" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Nomad" fill="#7c3aed" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {recs.map((r) => (
           <article key={r.id} className="panel rounded-2xl p-5">
-            <div className="text-xs text-[var(--gold)] uppercase tracking-widest">{r.country}</div>
-            <h2 className="mt-1 text-xl">{r.planName}</h2>
-            <p className="mt-2 text-3xl text-[var(--teal)]">${r.suggestedUsd.toFixed(2)}</p>
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--gold)]">{r.country}</div>
+            <h2 className="mt-1 text-lg font-medium">{r.planName}</h2>
+            <p className="mt-2 text-3xl font-semibold text-[var(--teal)]">${r.suggestedUsd.toFixed(2)}</p>
             <p className="text-sm text-[var(--muted)]">
               {t("vsMarket")}: ${r.competitorMin.toFixed(2)} · avg ${r.competitorAvg.toFixed(2)}
             </p>
@@ -93,9 +98,9 @@ export default function CompetitorsPage() {
           </article>
         ))}
       </div>
-      <div className="overflow-x-auto panel rounded-3xl">
+      <div className="panel overflow-x-auto rounded-2xl">
         <table className="min-w-full text-sm">
-          <thead className="text-left text-[var(--muted)]">
+          <thead className="soft text-left text-[var(--muted)]">
             <tr>
               <th className="p-3">Provider</th>
               <th className="p-3">Country</th>

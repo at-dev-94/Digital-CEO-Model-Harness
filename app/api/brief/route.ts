@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { buildMorningBrief } from "@/lib/brief";
+import { buildMorningBrief, isBrokenBrief } from "@/lib/brief";
 
 export async function GET() {
   try {
     const user = await requireSession();
-    const latest = await prisma.report.findFirst({
+    let latest = await prisma.report.findFirst({
       where: { type: "morning_brief" },
       orderBy: { createdAt: "desc" },
     });
+    if (!latest || isBrokenBrief(latest.content)) {
+      const rebuilt = await buildMorningBrief((user.language as "en" | "bn") || "en");
+      latest = rebuilt.report;
+    }
     const [emails, meetings, approvals, posts, recs] = await Promise.all([
       prisma.emailItem.findMany({ orderBy: { receivedAt: "desc" }, take: 8 }),
       prisma.calendarEvent.findMany({

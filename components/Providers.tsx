@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Lang, t as translate } from "@/lib/i18n";
+import { SpeechProvider } from "./SpeechProvider";
 
 type User = { id: string; email: string; name: string; role: string; language: string };
 
@@ -10,6 +11,7 @@ type AppState = {
   user: User | null;
   settings: Record<string, string>;
   pending: number;
+  ready: boolean;
   setLang: (lang: Lang) => void;
   refreshMe: () => Promise<void>;
   t: (key: Parameters<typeof translate>[1], vars?: Record<string, string>) => string;
@@ -22,19 +24,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [pending, setPending] = useState(0);
+  const [ready, setReady] = useState(false);
 
   const refreshMe = useCallback(async () => {
-    const res = await fetch("/api/me");
-    if (!res.ok) return;
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (!res.ok) {
+      setUser(null);
+      setReady(true);
+      return;
+    }
     const data = await res.json();
     setUser(data.user);
     setSettings(data.settings || {});
     setLangState((data.user?.language as Lang) || "en");
-    const approvals = await fetch("/api/approvals");
+    const approvals = await fetch("/api/approvals", { credentials: "include" });
     if (approvals.ok) {
       const json = await approvals.json();
       setPending((json.items || []).filter((i: { status: string }) => i.status === "pending").length);
     }
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -56,14 +64,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
       user,
       settings,
       pending,
+      ready,
       setLang,
       refreshMe,
       t: (key: Parameters<typeof translate>[1], vars?: Record<string, string>) => translate(lang, key, vars),
     }),
-    [lang, user, settings, pending, setLang, refreshMe],
+    [lang, user, settings, pending, ready, setLang, refreshMe],
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      <SpeechProvider>{children}</SpeechProvider>
+    </Ctx.Provider>
+  );
 }
 
 export function useApp() {
