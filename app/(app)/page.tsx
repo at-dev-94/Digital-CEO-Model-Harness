@@ -5,23 +5,18 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  Bot,
-  CalendarClock,
   ChevronRight,
   Globe,
-  Mail,
   Music2,
   Pause,
   Play,
   RefreshCw,
   Search,
   ShieldCheck,
-  ShoppingCart,
   Sparkles,
   Square,
   TrendingDown,
   TrendingUp,
-  Users,
   Volume2,
 } from "lucide-react";
 import {
@@ -72,6 +67,7 @@ export default function DashboardPage() {
   const [brief, setBrief] = useState<BriefData | null>(null);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [range, setRange] = useState<7 | 30 | 90>(7);
 
   const load = useCallback(async () => {
     const [dashRes, briefRes] = await Promise.all([fetch("/api/dashboard"), fetch("/api/brief")]);
@@ -127,71 +123,82 @@ export default function DashboardPage() {
     return () => clearInterval(id);
   }, []);
 
+  const windowSeries = useMemo(() => (data?.series || []).slice(-range), [data?.series, range]);
+  const priorSeries = useMemo(() => {
+    const all = data?.series || [];
+    return all.slice(Math.max(0, all.length - range * 2), Math.max(0, all.length - range));
+  }, [data?.series, range]);
+  const windowRevenue = windowSeries.reduce((sum, point) => sum + point.revenue, 0);
+  const priorRevenue = priorSeries.reduce((sum, point) => sum + point.revenue, 0);
+  const windowOrders = windowSeries.reduce((sum, point) => sum + point.orders, 0);
+  const salesChange =
+    range === 7 && stats?.sales.change !== undefined
+      ? stats.sales.change
+      : priorRevenue
+        ? Math.round(((windowRevenue - priorRevenue) / priorRevenue) * 1000) / 10
+        : 0;
+  const rangeLabel = range === 7 ? t("last7Days") : range === 30 ? (lang === "bn" ? "৩০ দিন" : "30 days") : lang === "bn" ? "৯০ দিন" : "90 days";
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[26px] font-semibold tracking-tight md:text-[30px]">{t("assistantTitle")}</h1>
-          <p className="mt-0.5 text-sm text-[var(--muted)]">{t("subtitle")}</p>
+          <p className="text-[12px] text-[var(--muted)]">
+            {t("totalSales")} · {rangeLabel}
+          </p>
+          <h1 className="mt-1 text-[26px] font-semibold tracking-tight md:text-[30px]">
+            {t("greeting", { period: periodLabel(lang, now?.getHours()) })}, {user?.name || "Eshmum"}
+          </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--success-soft)] px-2.5 py-1 font-medium text-[var(--success)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
-            {t("systemOnline")}
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 font-medium text-[var(--muted)] ring-1 ring-[var(--line)]">
-            <CalendarClock size={13} />
-            {now ? (
-              <>
-                {now.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-                <span className="text-[var(--faint)]">
-                  {now.toLocaleTimeString(lang === "bn" ? "bn-BD" : "en-GB", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              </>
-            ) : (
-              <span className="inline-block min-w-[9rem]">&nbsp;</span>
-            )}
-          </span>
+        <div className="flex items-center gap-1 text-xs">
+          {([7, 30, 90] as const).map((days) => (
+            <button
+              key={days}
+              type="button"
+              data-active={range === days}
+              onClick={() => setRange(days)}
+              className="range-tab"
+            >
+              {days}d
+            </button>
+          ))}
         </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={<Globe size={18} />}
-          tone="blue"
-          label={t("websiteVisits")}
-          value={formatNumber(stats?.visits.value ?? 0, lang)}
-          change={stats?.visits.change}
-          caption={t("vsLastPeriod")}
-        />
-        <StatCard
-          icon={<Users size={18} />}
-          tone="violet"
-          label={t("socialReach")}
-          value={formatNumber(stats?.reach.value ?? 0, lang)}
-          change={stats?.reach.change}
-          caption={t("vsLastPeriod")}
-        />
-        <StatCard
-          icon={<Mail size={18} />}
-          tone="rose"
-          label={t("emailsProcessed")}
-          value={formatNumber(stats?.emails.value ?? 0, lang)}
-          change={stats?.emails.change}
-          caption={t("vsLastPeriod")}
-        />
-        <StatCard
-          icon={<ShoppingCart size={18} />}
-          tone="teal"
-          label={t("totalSales")}
-          value={formatMoney(stats?.sales.value ?? 0)}
-          change={stats?.sales.change}
-          caption={`${stats?.sales.orders ?? 0} ${t("ordersLabel")} · ${t("last7Days")}`}
-        />
+      <section className="grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(240px,0.8fr)]">
+        <div className="panel rounded-2xl p-5">
+          <div className="text-[13px] text-[var(--muted)]">{t("totalSales")}</div>
+          <div className="mt-2 flex items-end justify-between gap-4">
+            <div className="text-[40px] leading-none font-semibold tracking-tight">{formatMoney(windowRevenue || stats?.sales.value || 0)}</div>
+            <Sparkline points={windowSeries.map((point) => point.revenue)} />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success-soft)] px-2 py-0.5 text-[12px] font-medium text-[var(--success)]">
+              {salesChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+              {salesChange >= 0 ? "+" : ""}
+              {salesChange}% {t("vsLastPeriod")}
+            </span>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--line)] pt-4">
+            <div>
+              <div className="text-[12px] text-[var(--muted)]">{t("ordersLabel")}</div>
+              <div className="mt-1 text-lg font-semibold">{formatNumber(windowOrders || stats?.sales.orders || 0, lang)}</div>
+            </div>
+            <div>
+              <div className="text-[12px] text-[var(--muted)]">{t("websiteVisits")}</div>
+              <div className="mt-1 text-lg font-semibold">{formatNumber(stats?.visits.value ?? 0, lang)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-3">
+          <SecondaryStat label={t("socialReach")} value={formatNumber(stats?.reach.value ?? 0, lang)} change={stats?.reach.change} />
+          <SecondaryStat label={t("emailsProcessed")} value={formatNumber(stats?.emails.value ?? 0, lang)} change={stats?.emails.change} />
+          <SecondaryStat
+            label={t("websiteVisits")}
+            value={formatNumber(stats?.visits.value ?? 0, lang)}
+            change={stats?.visits.change}
+          />
+        </div>
       </section>
 
       <section className="panel overflow-hidden rounded-2xl">
@@ -211,11 +218,11 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {speaking ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--gold)] p-1 text-white">
+              <span className="inline-flex items-center gap-1 rounded-xl bg-[var(--gold)] p-1 text-white">
                 <button
                   type="button"
                   onClick={() => (paused ? resume() : pause())}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium"
+                  className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium"
                 >
                   {paused ? <Play size={14} /> : <Pause size={14} />}
                   {paused ? t("resumeReading") : t("nowReading")}
@@ -224,7 +231,7 @@ export default function DashboardPage() {
                   type="button"
                   onClick={stop}
                   aria-label={t("stopReading")}
-                  className="grid h-8 w-8 place-items-center rounded-full hover:bg-white/15"
+                  className="grid h-8 w-8 place-items-center rounded-lg hover:bg-white/15"
                 >
                   <Square size={12} />
                 </button>
@@ -234,9 +241,9 @@ export default function DashboardPage() {
                 type="button"
                 disabled={!briefText.trim()}
                 onClick={() => speak(briefText)}
-                className="btn-accent inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium disabled:opacity-50"
+                className="action-btn export disabled:opacity-50"
               >
-                <Volume2 size={16} />
+                <Volume2 size={14} className="action-ico" />
                 {t("readThisBrief")}
               </button>
             )}
@@ -244,14 +251,12 @@ export default function DashboardPage() {
               type="button"
               onClick={() => wakeSupported && setWakeEnabled(!wakeEnabled)}
               disabled={!wakeSupported}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium disabled:opacity-60 ${
-                wakeEnabled ? "bg-[var(--gold-soft)] text-[var(--gold)]" : "btn-quiet"
-              }`}
+              className="action-btn edit disabled:opacity-50"
             >
               {wakeEnabled ? t("wakeListening", { name: assistantName }) : t("wakeWord")}
-              {wakeEnabled ? <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--gold)]" /> : null}
             </button>
-            <button onClick={rebuild} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
+            <button onClick={rebuild} className="action-btn add">
+              <RefreshCw size={14} className={busy ? "animate-spin" : ""} />
               {busy ? "…" : t("generateBrief")}
             </button>
           </div>
@@ -283,7 +288,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-5 lg:grid-cols-2">
-            <SalesCard series={data?.series || []} lang={lang} change={stats?.sales.change} />
+            <SalesCard series={windowSeries} lang={lang} change={salesChange} rangeLabel={rangeLabel} />
             <SocialPostsCard posts={data?.posts || []} lang={lang} />
           </div>
 
@@ -306,49 +311,42 @@ export default function DashboardPage() {
 
 /* ---------- cards ---------- */
 
-const TONES: Record<string, string> = {
-  blue: "bg-[#e8effe] text-[#2563eb]",
-  violet: "bg-[#f0eafe] text-[#7c3aed]",
-  rose: "bg-[#fdeaf0] text-[#e11d48]",
-  teal: "bg-[#e0f5f2] text-[#0d9488]",
-};
-
-function StatCard({
-  icon,
-  tone,
-  label,
-  value,
-  change,
-  caption,
-}: {
-  icon: React.ReactNode;
-  tone: keyof typeof TONES;
-  label: string;
-  value: string;
-  change?: number;
-  caption: string;
-}) {
+function SecondaryStat({ label, value, change }: { label: string; value: string; change?: number }) {
   const up = (change ?? 0) >= 0;
   return (
-    <div className="panel panel-hover rounded-2xl p-5">
-      <div className="flex items-start justify-between">
-        <div className={`stat-icon ${TONES[tone]}`}>{icon}</div>
-        {change !== undefined ? (
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${
-              up ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--rose-soft)] text-[var(--rose)]"
-            }`}
-          >
-            {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-            {up ? "+" : ""}
-            {change}%
-          </span>
-        ) : null}
+    <div className="panel flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+      <div className="min-w-0">
+        <div className="truncate text-[12px] text-[var(--muted)]">{label}</div>
+        <div className="mt-0.5 text-[22px] leading-none font-semibold tracking-tight">{value}</div>
       </div>
-      <div className="mt-4 text-[26px] leading-none font-semibold tracking-tight">{value}</div>
-      <div className="mt-1.5 text-[13px] font-medium text-[var(--text)]">{label}</div>
-      <div className="mt-0.5 text-[11px] text-[var(--faint)]">{caption}</div>
+      {change !== undefined ? (
+        <span className={`text-[12px] font-medium ${up ? "text-[var(--success)]" : "text-[var(--rose)]"}`}>
+          {up ? "+" : ""}
+          {change}%
+        </span>
+      ) : null}
     </div>
+  );
+}
+
+function Sparkline({ points }: { points: number[] }) {
+  if (points.length < 2) return null;
+  const width = 112;
+  const height = 36;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const span = max - min || 1;
+  const d = points
+    .map((point, index) => {
+      const x = (index / (points.length - 1)) * width;
+      const y = height - ((point - min) / span) * (height - 4) - 2;
+      return `${index === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden className="shrink-0 text-[var(--success)]">
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -369,19 +367,20 @@ function HeroCard() {
 
 function MiniList({ title, href, items }: { title: string; href: string; items: string[] }) {
   return (
-    <div>
-      <Link href={href} className="flex items-center gap-1 text-[11px] font-semibold tracking-wider text-[var(--muted)] uppercase hover:text-[var(--gold)]">
+    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-2)] p-4">
+      <Link href={href} className="flex items-center gap-1 text-[11px] font-semibold tracking-[0.14em] text-[var(--gold)] uppercase">
         {title} <ChevronRight size={12} />
       </Link>
-      <ul className="mt-2 space-y-1.5 text-[13px] text-[var(--muted)]">
+      <ul className="mt-3 space-y-2 text-[13px]">
         {items.length ? (
           items.slice(0, 3).map((item) => (
-            <li key={item} className="line-clamp-1">
-              {item}
+            <li key={item} className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-[2px] bg-[var(--gold)]" />
+              <span className="line-clamp-2 text-[var(--text)]">{item}</span>
             </li>
           ))
         ) : (
-          <li>—</li>
+          <li className="text-[var(--muted)]">—</li>
         )}
       </ul>
     </div>
@@ -455,38 +454,28 @@ function AutopilotCard({ auto, pending, onToggle }: { auto: boolean; pending: nu
   const { t } = useApp();
   return (
     <div className="panel flex flex-col rounded-2xl p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="text-sm font-semibold">{t("autopilotMode")}</div>
-          <div className={`mt-1 text-[13px] font-medium ${auto ? "text-[var(--teal)]" : "text-[var(--gold)]"}`}>
-            {auto ? t("fullyAutomatic") : t("manualMode")}
-          </div>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={auto}
-          onClick={onToggle}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition ${auto ? "bg-[var(--teal)]" : "bg-[#cbd5e1]"}`}
-        >
-          <span
-            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
-              auto ? "left-[22px]" : "left-0.5"
-            }`}
-          />
+      <div className="text-sm font-semibold">{t("autopilotMode")}</div>
+      <div className="mt-3 grid gap-2">
+        <button type="button" data-checked={!auto} onClick={() => auto && onToggle()} className="choice">
+          <span className="choice-dot" />
+          <span>
+            <span className="block text-[14px] font-semibold">{t("manualMode")}</span>
+            <span className="mt-0.5 block text-[12px] text-[var(--muted)]">{t("autopilotOffHint")}</span>
+          </span>
+        </button>
+        <button type="button" data-checked={auto} onClick={() => !auto && onToggle()} className="choice">
+          <span className="choice-dot" />
+          <span>
+            <span className="block text-[14px] font-semibold">{t("autoMode")}</span>
+            <span className="mt-0.5 block text-[12px] text-[var(--muted)]">{t("autopilotOnHint")}</span>
+          </span>
         </button>
       </div>
-
-      <div className="mt-3 flex items-center gap-2 text-[13px] text-[var(--muted)]">
-        <Bot size={15} className={auto ? "text-[var(--teal)]" : "text-[var(--gold)]"} />
-        {auto ? t("autopilotOnHint") : t("autopilotOffHint")}
-      </div>
-
       <div className="mt-auto flex items-center justify-between border-t border-[var(--line)] pt-3">
         <div className="text-[12px] text-[var(--muted)]">
           {t("pending")}: <span className="font-semibold text-[var(--text)]">{pending}</span>
         </div>
-        <Link href="/approvals" className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--gold)]">
+        <Link href="/approvals" className="action-btn add px-3 py-1.5">
           {t("approvals")} <ArrowRight size={12} />
         </Link>
       </div>
@@ -494,7 +483,17 @@ function AutopilotCard({ auto, pending, onToggle }: { auto: boolean; pending: nu
   );
 }
 
-function SalesCard({ series, lang, change }: { series: Dashboard["series"]; lang: Lang; change?: number }) {
+function SalesCard({
+  series,
+  lang,
+  change,
+  rangeLabel,
+}: {
+  series: Dashboard["series"];
+  lang: Lang;
+  change?: number;
+  rangeLabel: string;
+}) {
   const { t } = useApp();
   const chart = useMemo(
     () =>
@@ -516,19 +515,12 @@ function SalesCard({ series, lang, change }: { series: Dashboard["series"]; lang
         <div className="text-sm font-semibold">{t("salesPerformance")}</div>
         <div className="flex items-center gap-2">
           {change !== undefined ? (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${
-                up ? "bg-[var(--success-soft)] text-[var(--success)]" : "bg-[var(--rose-soft)] text-[var(--rose)]"
-              }`}
-            >
-              {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+            <span className={`text-[12px] font-medium ${up ? "text-[var(--success)]" : "text-[var(--rose)]"}`}>
               {up ? "+" : ""}
               {change}%
             </span>
           ) : null}
-          <span className="rounded-full bg-[var(--gold-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--gold)]">
-            {t("last7Days")}
-          </span>
+          <span className="text-[12px] text-[var(--faint)]">{rangeLabel}</span>
         </div>
       </div>
 
@@ -542,15 +534,16 @@ function SalesCard({ series, lang, change }: { series: Dashboard["series"]; lang
                   <stop offset="100%" stopColor="#2563eb" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="#eef2f8" vertical={false} />
-              <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
-              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} width={52} />
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} width={52} />
               <Tooltip
                 contentStyle={{
                   borderRadius: 12,
-                  border: "1px solid #e2e8f3",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "#12161e",
+                  color: "#f4f7fb",
                   fontSize: 12,
-                  boxShadow: "0 10px 30px rgba(15,27,45,0.1)",
                 }}
                 formatter={(value, name) => {
                   const amount = Number(value ?? 0);
@@ -698,7 +691,7 @@ function ContentCard({ drafts }: { drafts: number }) {
   const { t } = useApp();
   return (
     <div className="panel panel-hover flex flex-col rounded-2xl p-5">
-      <div className="stat-icon bg-[#f0eafe] text-[#7c3aed]">
+      <div className="stat-icon bg-[var(--gold-soft)] text-[var(--gold)]">
         <Sparkles size={17} />
       </div>
       <div className="mt-3 text-[13px] font-semibold">{t("contentGenerator")}</div>

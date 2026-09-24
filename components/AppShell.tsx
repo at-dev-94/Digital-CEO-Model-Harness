@@ -129,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       href={item.href}
                       className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
                         active
-                          ? "bg-[var(--gold)] font-medium text-white shadow-[0_6px_18px_rgba(37,99,235,0.35)]"
+                          ? "bg-[var(--gold-soft)] font-medium text-white"
                           : "text-[var(--side-text)] hover:bg-[var(--side-bg-2)] hover:text-white"
                       }`}
                     >
@@ -173,7 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-[var(--line)] bg-white/85 px-4 py-3 backdrop-blur-xl md:px-6">
+        <header className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b border-[var(--line)] bg-[var(--bg)]/90 px-4 py-3 backdrop-blur-xl md:px-6">
           <div className="flex items-center gap-2 lg:hidden">
             <img src="/brand/logo-247.jpg" alt="247" className="h-8 w-8 rounded-lg object-cover" />
           </div>
@@ -235,15 +235,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <button
             onClick={toggleMode}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold text-white transition ${
-              auto ? "bg-[var(--teal)]" : "bg-[var(--gold)]"
-            }`}
+            className="btn-accent rounded-full px-3 py-1.5 text-xs font-semibold text-white"
           >
             {auto ? t("autoMode") : t("manualMode")}
           </button>
         </header>
 
-        <div className="flex gap-2 overflow-x-auto border-b border-[var(--line)] bg-white px-3 py-2 lg:hidden">
+        <div className="flex gap-2 overflow-x-auto border-b border-[var(--line)] bg-[var(--bg)] px-3 py-2 lg:hidden">
           {FLAT_NAV.map((item) => (
             <Link
               key={item.href}

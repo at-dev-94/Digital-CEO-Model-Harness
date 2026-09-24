@@ -1,35 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #eef3fb;
-  --bg-2: #f7faff;
-  --panel: #ffffff;
-  --line: #e2e8f3;
-  --line-strong: #cfd8e8;
+  --bg: #07090d;
+  --bg-2: #0b0e14;
+  --panel: #12161e;
+  --panel-2: #181d27;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
 
-  /* Primary accent. Named --gold for history; the palette is now blue. */
-  --gold: #2563eb;
-  --gold-2: #1d4ed8;
-  --gold-soft: #e8effe;
+  /* One flat accent. Named --gold for history; it is the brand blue. */
+  --gold: #3b82f6;
+  --gold-2: #2563eb;
+  --gold-soft: rgba(59, 130, 246, 0.14);
   --on-accent: #ffffff;
 
-  --teal: #0d9488;
-  --teal-soft: #e0f5f2;
-  --rose: #e11d48;
-  --rose-soft: #fdeaf0;
-  --amber: #b45309;
-  --amber-soft: #fdf2e0;
-  --success: #16a34a;
-  --success-soft: #e6f6ec;
+  --teal: #2dd4bf;
+  --teal-soft: rgba(45, 212, 191, 0.12);
+  --rose: #fb7185;
+  --rose-soft: rgba(251, 113, 133, 0.12);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251, 191, 36, 0.12);
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
 
-  --text: #0f1b2d;
-  --muted: #64748b;
-  --faint: #94a3b8;
+  --text: #f4f7fb;
+  --muted: #9aa6b8;
+  --faint: #6b7688;
 
-  --side-bg: #0f172a;
-  --side-bg-2: #16203a;
-  --side-text: #c8d3e6;
-  --side-muted: #7d8da8;
+  --side-bg: #0a0d13;
+  --side-bg-2: #141923;
+  --side-text: #c5cedb;
+  --side-muted: #7d8898;
 }
 
 @theme inline {
@@ -51,30 +52,30 @@ body {
 
 body {
   background-image:
-    radial-gradient(1100px 520px at 8% -8%, rgba(37, 99, 235, 0.1), transparent 58%),
-    radial-gradient(900px 480px at 100% 0%, rgba(13, 148, 136, 0.08), transparent 52%),
-    linear-gradient(180deg, var(--bg-2), var(--bg));
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-color: var(--bg);
   font-family: var(--font-sans);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #c2cddf transparent;
+  scrollbar-color: #2a3344 transparent;
 }
 
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
-  box-shadow: 0 1px 2px rgba(15, 27, 45, 0.04), 0 10px 30px rgba(15, 27, 45, 0.06);
+  box-shadow: none;
 }
 
 .panel-hover {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .panel-hover:hover {
-  box-shadow: 0 2px 6px rgba(15, 27, 45, 0.06), 0 16px 40px rgba(15, 27, 45, 0.1);
-  transform: translateY(-1px);
+  border-color: var(--line-strong);
 }
 
 .gold-line {
@@ -91,7 +92,7 @@ body {
 
 /* Form fields: replaces the old translucent-on-dark inputs. */
 .field {
-  background: #f8fafc;
+  background: #0c1016;
   border: 1px solid var(--line);
   color: var(--text);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -110,7 +111,7 @@ body {
 
 /* Subtle raised surface used for list rows and secondary bubbles. */
 .soft {
-  background: #f6f8fc;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .soft-active {
@@ -128,7 +129,7 @@ body {
 }
 
 .btn-quiet {
-  background: #ffffff;
+  background: transparent;
   border: 1px solid var(--line);
   color: var(--text);
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -136,7 +137,117 @@ body {
 
 .btn-quiet:hover {
   border-color: var(--line-strong);
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Premium outlined actions from the client's button reference. */
+.action-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.action-btn .action-ico {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.action-btn.add {
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.45);
+}
+.action-btn.add:hover {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.action-btn.edit {
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.action-btn.delete {
+  color: #fda4af;
+  border-color: rgba(251, 113, 133, 0.45);
+}
+.action-btn.delete:hover {
+  box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.12);
+}
+
+.action-btn.export {
+  color: #86efac;
+  border-color: rgba(74, 222, 128, 0.4);
+}
+.action-btn.export:hover {
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+}
+
+/* Premium card radios from the client's selector reference. */
+.choice {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.85rem 0.95rem;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.choice:hover {
+  border-color: var(--line-strong);
+}
+
+.choice[data-checked="true"] {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.16), rgba(59, 130, 246, 0.05));
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.16);
+}
+
+.choice-dot {
+  margin-top: 0.15rem;
+  display: grid;
+  height: 1.05rem;
+  width: 1.05rem;
+  flex: none;
+  place-items: center;
+  border-radius: 999px;
+  border: 1.5px solid var(--faint);
+}
+
+.choice[data-checked="true"] .choice-dot {
+  border-color: #3b82f6;
+  background: #3b82f6;
+  box-shadow: inset 0 0 0 3px #0c1016;
+}
+
+.range-tab {
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.range-tab[data-active="true"] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .stat-icon {

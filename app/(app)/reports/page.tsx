@@ -32,13 +32,13 @@ export default function ReportsPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        <button onClick={() => create("daily")} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
+        <button onClick={() => create("daily")} className="action-btn add">
           Daily
         </button>
-        <button onClick={() => create("weekly")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
+        <button onClick={() => create("weekly")} className="action-btn edit">
           Weekly
         </button>
-        <button onClick={() => create("competitor")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
+        <button onClick={() => create("competitor")} className="action-btn export">
           Market
         </button>
       </div>

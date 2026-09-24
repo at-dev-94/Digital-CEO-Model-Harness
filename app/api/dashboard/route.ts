@@ -21,12 +21,13 @@ export async function GET() {
 
     const windowStart = startOfDayUtc(6);
     const priorStart = startOfDayUtc(13);
-    const dayKeys = Array.from({ length: 7 }, (_, i) => startOfDayUtc(6 - i));
+    const chartStart = startOfDayUtc(89);
+    const dayKeys = Array.from({ length: 90 }, (_, i) => startOfDayUtc(89 - i));
 
     const [metrics, orders, priorOrders, websites, posts, activity, jobs, prices, recs, settings, pendingCount] =
       await Promise.all([
-        prisma.metricDaily.findMany({ where: { date: { gte: priorStart } } }),
-        prisma.order.findMany({ where: { placedAt: { gte: windowStart } }, orderBy: { placedAt: "asc" } }),
+        prisma.metricDaily.findMany({ where: { date: { gte: chartStart } } }),
+        prisma.order.findMany({ where: { placedAt: { gte: chartStart } }, orderBy: { placedAt: "asc" } }),
         prisma.order.findMany({ where: { placedAt: { gte: priorStart, lt: windowStart } } }),
         prisma.website.findMany({ orderBy: { createdAt: "asc" } }),
         prisma.socialPost.findMany({ orderBy: { updatedAt: "desc" }, take: 5 }),
@@ -43,7 +44,8 @@ export async function GET() {
         .filter((m) => m.key === key && m.date >= from && (!to || m.date < to))
         .reduce((sum, m) => sum + m.value, 0);
 
-    const salesCurrent = orders.reduce((sum, o) => sum + o.amountUsd, 0);
+    const weekOrders = orders.filter((o) => o.placedAt >= windowStart);
+    const salesCurrent = weekOrders.reduce((sum, o) => sum + o.amountUsd, 0);
     const salesPrior = priorOrders.reduce((sum, o) => sum + o.amountUsd, 0);
 
     const series = dayKeys.map((day) => {
@@ -79,7 +81,7 @@ export async function GET() {
         sales: {
           value: Math.round(salesCurrent * 100) / 100,
           change: percentChange(salesCurrent, salesPrior),
-          orders: orders.length,
+          orders: weekOrders.length,
         },
       },
       series,

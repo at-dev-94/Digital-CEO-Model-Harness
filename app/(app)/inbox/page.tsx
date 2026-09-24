@@ -52,7 +52,7 @@ export default function InboxPage() {
             key={m.id}
             onClick={() => setActive(m)}
             className={`mb-1 w-full rounded-xl px-3 py-3 text-left transition ${
-              active?.id === m.id ? "soft-active" : "hover:bg-[#f6f8fc]"
+              active?.id === m.id ? "soft-active" : "hover:bg-white/5"
             }`}
           >
             <div className="flex justify-between text-xs text-[var(--muted)]">
@@ -78,10 +78,10 @@ export default function InboxPage() {
           </div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-7">{active.draftReply || t("noItems")}</p>
           <div className="mt-4 flex gap-2">
-            <button onClick={() => act("draft")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
+            <button onClick={() => act("draft")} className="action-btn edit">
               {t("draftReply")}
             </button>
-            <button onClick={() => act("queue")} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
+            <button onClick={() => act("queue")} className="action-btn add">
               {t("oneClick")}
             </button>
           </div>

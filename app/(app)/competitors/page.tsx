@@ -82,7 +82,7 @@ export default function CompetitorsPage() {
           </h1>
           <p className="mt-1 text-sm text-[var(--muted)]">{t("yourStandingHint")}</p>
         </div>
-        <button onClick={refresh} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
+        <button onClick={refresh} className="action-btn export">
           {busy ? "…" : t("refreshMarket")}
         </button>
       </div>
@@ -126,9 +126,9 @@ export default function CompetitorsPage() {
       <div className="panel h-80 rounded-2xl p-4">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chart}>
-            <CartesianGrid stroke="#eef2f8" vertical={false} />
-            <XAxis dataKey="country" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <XAxis dataKey="country" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} />
             <Tooltip
               contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f3", fontSize: 12 }}
               cursor={{ fill: "rgba(37,99,235,0.05)" }}

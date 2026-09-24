@@ -43,7 +43,7 @@ export default function LoginForm() {
             alt="247 Digital Services"
             className="mb-6 h-16 w-auto rounded-2xl object-cover ring-1 ring-[var(--line)]"
           />
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs tracking-[0.18em] text-[var(--gold)] uppercase">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-1 text-xs tracking-[0.18em] text-[var(--gold)] uppercase">
             AI CEO Assistant
           </div>
           <h1 className="max-w-xl text-4xl font-semibold leading-tight md:text-5xl">

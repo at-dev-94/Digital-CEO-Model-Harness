@@ -56,7 +56,7 @@ export default function SocialPage() {
           <div className="text-xs font-semibold tracking-[0.16em] text-[var(--gold)] uppercase">{t("social")}</div>
           <h1 className="text-xl font-semibold">Facebook · Instagram · TikTok</h1>
         </div>
-        <button onClick={generate} className="btn-accent rounded-full px-4 py-2 text-sm font-medium">
+        <button onClick={generate} className="action-btn add">
           {busy ? "…" : t("generatePosts")}
         </button>
       </div>
@@ -64,9 +64,9 @@ export default function SocialPage() {
         <div className="panel h-64 rounded-2xl p-4">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={performance}>
-              <CartesianGrid stroke="#eef2f8" vertical={false} />
-              <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
-              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#6b7688" }} />
               <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f3", fontSize: 12 }} />
               <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="impressions" stroke="#2563eb" strokeWidth={2.4} dot={{ r: 3 }} />

@@ -69,13 +69,10 @@ export default function ApprovalsPage() {
             <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--muted)]">{item.summary}</p>
             {item.status === "pending" ? (
               <div className="mt-4 flex gap-2">
-                <button
-                  onClick={() => decide(item.id, "approved")}
-                  className="rounded-full bg-[var(--teal)] px-4 py-2 text-sm font-medium text-white"
-                >
+                <button onClick={() => decide(item.id, "approved")} className="action-btn export">
                   {t("approve")}
                 </button>
-                <button onClick={() => decide(item.id, "rejected")} className="btn-quiet rounded-full px-4 py-2 text-sm font-medium">
+                <button onClick={() => decide(item.id, "rejected")} className="action-btn delete">
                   {t("reject")}
                 </button>
               </div>

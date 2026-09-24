@@ -263,7 +263,7 @@ export default function SettingsPage() {
             disabled={!wakeSupported}
             onClick={() => setWakeEnabled(!wakeEnabled)}
             className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${
-              wakeEnabled ? "bg-[var(--teal)]" : "bg-[#cbd5e1]"
+              wakeEnabled ? "bg-[var(--gold)]" : "bg-white/15"
             }`}
           >
             <span
